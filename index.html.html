@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Pagos de Servicios Online</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header */
+        header {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        header h1 {
+            color: #667eea;
+            font-size: 28px;
+            margin-bottom: 5px;
+        }
+
+        header p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        /* Navigation Tabs */
+        .tabs {
+            background: white;
+            border-radius: 10px;
+            padding: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            padding: 12px 24px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            color: #666;
+            transition: all 0.3s;
+        }
+
+        .tab-btn:hover {
+            background: #f3f4f6;
+        }
+
+        .tab-btn.active {
+            background: #667eea;
+            color: white;
+        }
+
+        /* Content Cards */
+        .content {
+            display: none;
+        }
+
+        .content.active {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .card {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .card-title {
+            font-size: 24px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+        }
+
+        .btn-success {
+            background: #10b981;
+            color: white;
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #6b7280;
+            color: white;
+        }
+
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+
+        /* Dashboard Stats */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border-left: 4px solid;
+        }
+
+        .stat-card.blue { border-left-color: #667eea; }
+        .stat-card.green { border-left-color: #10b981; }
+        .stat-card.purple { border-left-color: #8b5cf6; }
+        .stat-card.orange { border-left-color: #f59e0b; }
+
+        .stat-label {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
+            font-size: 36px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th {
+            background: #f3f4f6;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            color: #333;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        tr:hover {
+            background: #f9fafb;
+        }
+
+        /* Forms */
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            max-width: 500px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            font-size: 22px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .modal-footer {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .modal-footer .btn {
+            flex: 1;
+        }
+
+        /* Service Cards */
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .service-card {
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 20px;
+            transition: all 0.3s;
+        }
+
+        .service-card:hover {
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+
+        .service-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 15px;
+        }
+
+        .service-icon {
+            font-size: 28px;
+        }
+
+        .service-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .service-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        .service-provider {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .service-price {
+            font-size: 24px;
+            font-weight: bold;
+            color: #10b981;
+        }
+
+        /* Badges */
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .badge-success {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .badge-warning {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .badge-danger {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        /* ORM Diagram */
+        .orm-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .orm-box {
+            border: 2px solid;
+            border-radius: 10px;
+            padding: 20px;
+        }
+
+        .orm-box.relational {
+            border-color: #667eea;
+            background: #eef2ff;
+        }
+
+        .orm-box.object {
+            border-color: #10b981;
+            background: #d1fae5;
+        }
+
+        .orm-title {
+            font-weight: 600;
+            font-size: 16px;
+            margin-bottom: 15px;
+        }
+
+        .orm-item {
+            background: white;
+            padding: 10px;
+            margin-bottom: 8px;
+            border-radius: 6px;
+            font-size: 13px;
+            border: 1px solid #e5e7eb;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .card-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            table {
+                font-size: 12px;
+            }
+
+            th, td {
+                padding: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <h1>💳 Sistema de Pagos de Servicios Online</h1>
+            <p>Gestión Completa con Persistencia de Datos | HTML + JavaScript + CSS</p>
+        </header>
+
+        <!-- Navigation Tabs -->
+        <div class="tabs">
+            <button class="tab-btn active" onclick="showTab('dashboard')">📊 Dashboard</button>
+            <button class="tab-btn" onclick="showTab('clientes')">👥 Clientes</button>
+            <button class="tab-btn" onclick="showTab('servicios')">⚡ Servicios</button>
+            <button class="tab-btn" onclick="showTab('cuentas')">📋 Cuentas</button>
+            <button class="tab-btn" onclick="showTab('pagos')">💰 Pagos</button>
+        </div>
+
+        <!-- Dashboard Content -->
+        <div id="dashboard" class="content active">
+            <div class="stats-grid">
+                <div class="stat-card blue">
+                    <div class="stat-label">Total Clientes</div>
+                    <div class="stat-value" id="totalClientes">0</div>
+                </div>
+                <div class="stat-card green">
+                    <div class="stat-label">Servicios Activos</div>
+                    <div class="stat-value" id="totalServicios">0</div>
+                </div>
+                <div class="stat-card purple">
+                    <div class="stat-label">Pagos Realizados</div>
+                    <div class="stat-value" id="totalPagos">0</div>
+                </div>
+                <div class="stat-card orange">
+                    <div class="stat-label">Total Recaudado</div>
+                    <div class="stat-value" id="totalRecaudado">$0.00</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3 class="card-title">🗄️ Modelo de Base de Datos - Mapeo ORM</h3>
+                <div class="orm-grid">
+                    <div class="orm-box relational">
+                        <div class="orm-title">📊 MODELO RELACIONAL</div>
+                        <div class="orm-item"><strong>Clientes</strong> (id*, nombre, email, telefono, direccion)</div>
+                        <div class="orm-item"><strong>Servicios</strong> (id*, tipo, proveedor, descripcion, tarifa_base)</div>
+                        <div class="orm-item"><strong>Cuentas</strong> (id*, cliente_id, servicio_id, numero_cuenta, estado)</div>
+                        <div class="orm-item"><strong>Pagos</strong> (id*, cuenta_id, monto, fecha, metodo_pago, estado)</div>
+                    </div>
+                    <div class="orm-box object">
+                        <div class="orm-title">🎯 MODELO DE OBJETOS (ORM)</div>
+                        <div class="orm-item"><strong>class Cliente</strong>: id, nombre, email, telefono, direccion, cuentas[]</div>
+                        <div class="orm-item"><strong>class Servicio</strong>: id, tipo, proveedor, descripcion, tarifa_base</div>
+                        <div class="orm-item"><strong>class Cuenta</strong>: id, cliente, servicio, numero_cuenta, estado</div>
+                        <div class="orm-item"><strong>class Pago</strong>: id, cuenta, monto, fecha, metodo_pago, estado</div>
+                    </div>
+                </div>
+                <div style="margin-top: 20px; padding: 15px; background: #fef3c7; border-radius: 8px; border-left: 4px solid #f59e0b;">
+                    <strong>💾 Persistencia:</strong> Los datos se almacenan mediante window.storage API, 
+                    proporcionando persistencia entre sesiones del navegador.
+                </div>
+            </div>
+        </div>
+
+        <!-- Clientes Content -->
+        <div id="clientes" class="content">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Gestión de Clientes</h2>
+                    <button class="btn btn-primary" onclick="openModal('cliente')">➕ Nuevo Cliente</button>
+                </div>
+                <table id="clientesTable">
+                    <thead>
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Email</th>
+                            <th>Teléfono</th>
+                            <th>Dirección</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="clientesBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Servicios Content -->
+        <div id="servicios" class="content">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Gestión de Servicios</h2>
+                    <button class="btn btn-success" onclick="openModal('servicio')">➕ Nuevo Servicio</button>
+                </div>
+                <div class="services-grid" id="serviciosGrid"></div>
+            </div>
+        </div>
+
+        <!-- Cuentas Content -->
+        <div id="cuentas" class="content">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Gestión de Cuentas</h2>
+                    <button class="btn btn-primary" onclick="openModal('cuenta')">➕ Nueva Cuenta</button>
+                </div>
+                <table id="cuentasTable">
+                    <thead>
+                        <tr>
+                            <th>Cliente</th>
+                            <th>Servicio</th>
+                            <th>N° Cuenta</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="cuentasBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Pagos Content -->
+        <div id="pagos" class="content">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Gestión de Pagos</h2>
+                    <button class="btn btn-primary" onclick="openModal('pago')">➕ Nuevo Pago</button>
+                </div>
+                <table id="pagosTable">
+                    <thead>
+                        <tr>
+                            <th>Cliente</th>
+                            <th>Servicio</th>
+                            <th>Monto</th>
+                            <th>Método</th>
+                            <th>Fecha</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="pagosBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header" id="modalTitle">Nuevo Registro</div>
+            <form id="modalForm">
+                <div id="formFields"></div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Guardar</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Base de Datos con Persistencia
+        const DB = {
+            async getAll(table) {
+                try {
+                    const result = await window.storage.get(`${table}_data`);
+                    return result ? JSON.parse(result.value) : [];
+                } catch {
+                    return [];
+                }
+            },
+            
+            async save(table, data) {
+                try {
+                    await window.storage.set(`${table}_data`, JSON.stringify(data));
+                    return true;
+                } catch (error) {
+                    console.error('Error guardando:', error);
+                    return false;
+                }
+            },
+            
+            async add(table, item) {
+                const items = await this.getAll(table);
+                const newItem = { ...item, id: Date.now().toString() };
+                items.push(newItem);
+                await this.save(table, items);
+                return newItem;
+            },
+            
+            async update(table, id, updates) {
+                const items = await this.getAll(table);
+                const index = items.findIndex(item => item.id === id);
+                if (index !== -1) {
+                    items[index] = { ...items[index], ...updates };
+                    await this.save(table, items);
+                    return items[index];
+                }
+                return null;
+            },
+            
+            async delete(table, id) {
+                const items = await this.getAll(table);
+                const filtered = items.filter(item => item.id !== id);
+                await this.save(table, filtered);
+                return true;
+            }
+        };
+
+        // Estado Global
+        let currentModalType = '';
+        let editingId = null;
+        let clientes = [];
+        let servicios = [];
+        let cuentas = [];
+        let pagos = [];
+
+        // Inicializar App
+        async function init() {
+            await loadAllData();
+            renderDashboard();
+            renderClientes();
+            renderServicios();
+            renderCuentas();
+            renderPagos();
+        }
+
+        async function loadAllData() {
+            clientes = await DB.getAll('clientes');
+            servicios = await DB.getAll('servicios');
+            cuentas = await DB.getAll('cuentas');
+            pagos = await DB.getAll('pagos');
+        }
+
+        // Navigation
+        function showTab(tabName) {
+            document.querySelectorAll('.content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // Dashboard
+        function renderDashboard() {
+            document.getElementById('totalClientes').textContent = clientes.length;
+            document.getElementById('totalServicios').textContent = servicios.length;
+            document.getElementById('totalPagos').textContent = pagos.length;
+            
+            const total = pagos.reduce((sum, p) => sum + parseFloat(p.monto || 0), 0);
+            document.getElementById('totalRecaudado').textContent = `$${total.toFixed(2)}`;
+        }
+
+        // Render Clientes
+        function renderClientes() {
+            const tbody = document.getElementById('clientesBody');
+            
+            if (clientes.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="empty-state">No hay clientes registrados</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = clientes.map(cliente => `
+                <tr>
+                    <td>${cliente.nombre}</td>
+                    <td>${cliente.email}</td>
+                    <td>${cliente.telefono}</td>
+                    <td>${cliente.direccion}</td>
+                    <td>
+                        <button class="btn btn-primary btn-small" onclick="editItem('cliente', '${cliente.id}')">✏️</button>
+                        <button class="btn btn-danger btn-small" onclick="deleteItem('clientes', '${cliente.id}')">🗑️</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Render Servicios
+        function renderServicios() {
+            const grid = document.getElementById('serviciosGrid');
+            
+            if (servicios.length === 0) {
+                grid.innerHTML = '<div class="empty-state">No hay servicios registrados</div>';
+                return;
+            }
+            
+            const iconos = {
+                'Energía': '⚡',
+                'Agua': '💧',
+                'Internet': '📡',
+                'Teléfono': '📞',
+                'Gas': '🔥'
+            };
+            
+            grid.innerHTML = servicios.map(servicio => `
+                <div class="service-card">
+                    <div class="service-header">
+                        <div>
+                            <div class="service-icon">${iconos[servicio.tipo] || '📋'}</div>
+                            <div class="service-title">${servicio.tipo}</div>
+                        </div>
+                        <div class="service-actions">
+                            <button class="btn btn-primary btn-small" onclick="editItem('servicio', '${servicio.id}')">✏️</button>
+                            <button class="btn btn-danger btn-small" onclick="deleteItem('servicios', '${servicio.id}')">🗑️</button>
+                        </div>
+                    </div>
+                    <div class="service-provider"><strong>Proveedor:</strong> ${servicio.proveedor}</div>
+                    <div class="service-provider">${servicio.descripcion || ''}</div>
+                    <div class="service-price">$${servicio.tarifa_base}</div>
+                </div>
+            `).join('');
+        }
+
+        // Render Cuentas
+        function renderCuentas() {
+            const tbody = document.getElementById('cuentasBody');
+            
+            if (cuentas.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="empty-state">No hay cuentas registradas</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = cuentas.map(cuenta => {
+                const cliente = clientes.find(c => c.id === cuenta.cliente_id);
+                const servicio = servicios.find(s => s.id === cuenta.servicio_id);
+                const badgeClass = cuenta.estado === 'Activa' ? 'badge-success' : 'badge-danger';
+                
+                return `
+                    <tr>
+                        <td>${cliente?.nombre || 'N/A'}</td>
+                        <td>${servicio?.tipo || 'N/A'}</td>
+                        <td>${cuenta.numero_cuenta}</td>
+                        <td><span class="badge ${badgeClass}">${cuenta.estado}</span></td>
+                        <td>
+                            <button class="btn btn-primary btn-small" onclick="editItem('cuenta', '${cuenta.id}')">✏️</button>
+                            <button class="btn btn-danger btn-small" onclick="deleteItem('cuentas', '${cuenta.id}')">🗑️</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // Render Pagos
+        function renderPagos() {
+            const tbody = document.getElementById('pagosBody');
+            
+            if (pagos.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="empty-state">No hay pagos registrados</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = pagos.map(pago => {
+                const cuenta = cuentas.find(c => c.id === pago.cuenta_id);
+                const cliente = clientes.find(c => c.id === cuenta?.cliente_id);
+                const servicio = servicios.find(s => s.id === cuenta?.servicio_id);
+                const badgeClass = pago.estado === 'Completado' ? 'badge-success' : 'badge-warning';
+                const fecha = new Date(pago.fecha).toLocaleDateString();
+                
+                return `
+                    <tr>
+                        <td>${cliente?.nombre || 'N/A'}</td>
+                        <td>${servicio?.tipo || 'N/A'}</td>
+                        <td style="color: #10b981; font-weight: bold;">$${pago.monto}</td>
+                        <td>${pago.metodo_pago}</td>
+                        <td>${fecha}</td>
+                        <td><span class="badge ${badgeClass}">${pago.estado}</span></td>
+                        <td>
+                            <button class="btn btn-primary btn-small" onclick="editItem('pago', '${pago.id}')">✏️</button>
+                            <button class="btn btn-danger btn-small" onclick="deleteItem('pagos', '${pago.id}')">🗑️</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // Modal Functions
+        function openModal(type, id = null) {
+            currentModalType = type;
+            editingId = id;
+            
+            const modal = document.getElementById('modal');
+            const title = document.getElementById('modalTitle');
+            const formFields = document.getElementById('formFields');
+            
+            title.textContent = `${id ? 'Editar' : 'Nuevo'} ${type.charAt(0).toUpperCase() + type.slice(1)}`;
+            
+            let fields = '';
+            let data = {};
+            
+            if (id) {
+                const table = type + 's';
+                data = eval(table).find(item => item.id === id) || {};
+            }
+            
+            switch(type) {
+                case 'cliente':
+                    fields = `
+                        <div class="form-group">
+                            <label>Nombre Completo *</label>
+                            <input type="text" class="form-control" name="nombre" value="${data.nombre || ''}" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Email *</label>
+                            <input type="email" class="form-control" name="email" value="${data.email || ''}" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Teléfono *</label>
+                            <input type="tel" class="form-control" name="telefono" value="${data.telefono || ''}" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Dirección *</label>
+                            <input type="text" class="form-control" name="direccion" value="${data.direccion || ''}" required>
+                        </div>
+                    `;
+                    break;
+                    
+                case 'servicio':
+                    fields = `
+                        <div class="form-group">
+                            <label>Tipo de Servicio *</label>
+                            <select class="form-control" name="tipo" required>
+                                <option value="">Seleccione...</option>
+                                <option value="Energía" ${data.tipo === 'Energía' ? 'selected' : ''}>Energía</option>
+                                <option value="Agua" ${data.tipo === 'Agua' ? 'selected' : ''}>Agua</option>
+                                <option value="Internet" ${data.tipo === 'Internet' ? 'selected' : ''}>Internet</option>
+                                <option value="Teléfono" ${data.tipo === 'Teléfono' ? 'selected' : ''}>Teléfono</option>
+                                <option value="Gas" ${data.tipo === 'Gas' ? 'selected' : ''}>Gas</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Proveedor *</label>
+                            <input type="text" class="form-control" name="proveedor" value="${data.proveedor || ''}" required>
+                        </div>
+                        
